@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\any\\Desktop\\work\\graphics\\Opengl-Cook-Torrance-PBR\\Opengl-Cook-Torrance-PBR\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2049CF3C-5870-4DB7-9E57-709E96DCD282}|Opengl-Cook-Torrance-PBR.vcxproj|C:\\Users\\any\\Desktop\\work\\graphics\\Opengl-Cook-Torrance-PBR\\Opengl-Cook-Torrance-PBR\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{2049CF3C-5870-4DB7-9E57-709E96DCD282}|Opengl-Cook-Torrance-PBR.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\any\\Desktop\\work\\graphics\\Opengl-Cook-Torrance-PBR\\Opengl-Cook-Torrance-PBR\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "C:\\Users\\any\\Desktop\\work\\graphics\\Opengl-Cook-Torrance-PBR\\Opengl-Cook-Torrance-PBR\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAAACYAAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-04-04T06:31:08.952Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
