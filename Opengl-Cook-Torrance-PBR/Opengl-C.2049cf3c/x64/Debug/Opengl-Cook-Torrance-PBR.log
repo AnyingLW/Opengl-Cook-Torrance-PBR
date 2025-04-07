@@ -1,2 +1,5 @@
 ﻿  main.cpp
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\shader.h(4,10): warning C4067: 预处理器指令后有意外标记 - 应输入换行符
+  (编译源文件“main.cpp”)
+  
   Opengl-Cook-Torrance-PBR.vcxproj -> C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\x64\Debug\Opengl-Cook-Torrance-PBR.exe
