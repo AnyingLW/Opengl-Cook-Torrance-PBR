@@ -1,6 +1,9 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<iostream>
+#include<glm/glm.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
 
 #include"shader.h"
 #include"stb_image.h"
@@ -65,7 +68,7 @@ int main() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-
+	//纹理
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D,texture1);
@@ -86,7 +89,6 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-
 	unsigned int texture2;
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
@@ -105,25 +107,33 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-
 	shader.use();
 	shader.setInt("texture1", 0);
 	shader.setInt("texture2", 1);
-	float par = 0.0;
+
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);//处理键盘事件
 		//glClearColor(1, 0.3, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);//清屏
-
+		//激活并绑定不同的纹理
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+
+		glm::mat4 trans;
+		trans = glm::translate(trans, glm::vec3(0.5, -0.5, 0));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0, 0, 1));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
+
 		shader.use();
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)par += 0.2;
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)par -= 0.2;
-		shader.setFloat("par", par);
 		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glm::mat4 trans2;
+		trans2 = glm::translate(trans2, glm::vec3(-0.5, 0.5, 0));
+		trans2 = glm::scale(trans2, glm::vec3(sin(glfwGetTime())));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans2));
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
