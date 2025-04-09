@@ -156,10 +156,6 @@ int main() {
 	//ourShader.use();
 	//ourShader.setInt("texture1", 0);
 	//ourShader.setInt("texture2", 1);
-	ourShader.use();
-	ourShader.setVec3("objectColor", glm::vec3(1, 0.5, 0.31));
-	ourShader.setVec3("lightColor", glm::vec3(1, 1, 1));
-	ourShader.setVec3("lightPos", lightPos);
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
@@ -176,6 +172,15 @@ int main() {
 		//物体的shader
 		ourShader.use();
 		ourShader.setVec3("viewPos", camera.Position);
+		ourShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+		ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		ourShader.setFloat("material.shininess", 32.0f);
+		ourShader.setVec3("light.position", lightPos);
+		glm::vec3 lightColor(sin(glfwGetTime() * 2), sin(glfwGetTime() * 0.7), sin(glfwGetTime() * 1.3));
+		ourShader.setVec3("light.ambient", lightColor*glm::vec3(0.2));
+		ourShader.setVec3("light.diffuse", lightColor* glm::vec3(0.5));
+		ourShader.setVec3("light.specular", glm::vec3(1, 1, 1));
 		glm::mat4 view=camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -203,10 +208,6 @@ int main() {
 	return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-}
-
 void processInput(GLFWwindow* window) {//检测是否按下esc，若按下则关闭窗口
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -218,6 +219,10 @@ void processInput(GLFWwindow* window) {//检测是否按下esc，若按下则关闭窗口
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -232,10 +237,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	float yoffset = lastY - ypos;
 	lastX = xpos;
 	lastY = ypos;
-
-	float sensitivity = 0.05f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
 
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
