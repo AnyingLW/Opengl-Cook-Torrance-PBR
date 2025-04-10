@@ -97,6 +97,18 @@ int main() {
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
+	glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 	//数据->缓冲区
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -121,43 +133,53 @@ int main() {
 	//纹理
 	unsigned int diffuseMap = loadTexture("resource/container2.png");
 	unsigned int specularMap = loadTexture("resource/container2_specular.png");
-	unsigned int emissionMap = loadTexture("resource/matrix.jpg");
 	ourShader.use();
 	ourShader.setInt("material.diffuse", 0);
 	ourShader.setInt("material.specular", 1);
-	ourShader.setInt("material.emission", 2);
+	ourShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5)));
+	ourShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5)));
+	ourShader.setFloat("light.constant", 1.0f);
+	ourShader.setFloat("light.linear", 0.09f);
+	ourShader.setFloat("light.quadratic", 0.032f);
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		processInput(window);//处理键盘事件
-		//glClearColor(1, 0.3, 0.3, 1.0);
+		glClearColor(0.1,0.1,0.1,1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//清颜色缓存&深度缓存
 		//激活并绑定不同的纹理
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, emissionMap);
 		//物体的shader
 		ourShader.use();
 		ourShader.setVec3("viewPos", camera.Position);
 		ourShader.setFloat("material.shininess", 32.0f);
-		ourShader.setVec3("light.position", lightPos);
 		ourShader.setVec3("light.ambient", glm::vec3(0.2));
 		ourShader.setVec3("light.diffuse", glm::vec3(0.5));
-		ourShader.setVec3("light.specular", glm::vec3(1, 1, 1));
+		ourShader.setVec3("light.specular", glm::vec3(1));
+		ourShader.setVec3("light.position", camera.Position);
+		ourShader.setVec3("light.direction", camera.Front);
 		glm::mat4 view=camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
-		glm::mat4 model;
-		ourShader.setMat4("model", model);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMat4("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		//灯的shader
+		glm::mat4 model;
 		lightShader.use();
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);

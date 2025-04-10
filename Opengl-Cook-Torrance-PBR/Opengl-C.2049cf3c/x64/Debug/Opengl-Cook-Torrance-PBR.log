@@ -2,15 +2,20 @@
 C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\shader.h(4,10): warning C4067: 预处理器指令后有意外标记 - 应输入换行符
   (编译源文件“main.cpp”)
   
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(149,48): warning C4305: “参数”: 从“double”到“T”截断
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(149,48): warning C4305:         with
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(149,48): warning C4305:         [
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(149,48): warning C4305:             T=float
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(149,48): warning C4305:         ]
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(200,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(201,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(204,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(205,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(206,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(207,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(139,45): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(140,50): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(150,24): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(150,20): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(150,16): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(161,48): warning C4305: “参数”: 从“double”到“T”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(161,48): warning C4305:         with
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(161,48): warning C4305:         [
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(161,48): warning C4305:             T=float
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(161,48): warning C4305:         ]
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(222,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(223,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(226,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(227,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(228,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(229,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
   Opengl-Cook-Torrance-PBR.vcxproj -> C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\x64\Debug\Opengl-Cook-Torrance-PBR.exe
