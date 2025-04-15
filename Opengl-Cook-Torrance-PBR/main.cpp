@@ -55,77 +55,68 @@ int main() {
 	///////////////////////////////////////////////////////////////////////////////
 
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
-	Shader normalShader("shaders/lightShader.vs","shaders/lightShader.fs");
+	Shader ishader("shaders/lightShader.vs", "shaders/lightShader.fs");
 
-	// 1. 从文件路径中获取着色器
-	std::string gemometryCode;
-	std::ifstream gShaderFile;
-	// 保证ifstream对象可以抛出异常：
-	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	try
+	unsigned int amount = 100000;
+	glm::mat4* modelMatrices;
+	modelMatrices = new glm::mat4[amount];
+	srand(glfwGetTime()); // 初始化随机种子    
+	float radius = 50.0;
+	float offset = 2.5f;
+	for (unsigned int i = 0; i < amount; i++)
 	{
-		// 打开文件
-		gShaderFile.open("shaders/shader.gs");
-		std::stringstream gShaderStream;
-		// 读取文件的缓冲内容到数据流中
-		gShaderStream << gShaderFile.rdbuf();
-		// 关闭文件处理器
-		gShaderFile.close();
-		// 转换数据流到string
-		gemometryCode = gShaderStream.str();
-	}
-	catch (std::ifstream::failure e)
-	{
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-	}
-	const char* gShaderCode = gemometryCode.c_str();
-	// 2. 编译着色器
-	unsigned int gemometry;
-	int success;
-	char infoLog[512];
-	// 几何着色器
-	gemometry = glCreateShader(GL_GEOMETRY_SHADER);
-	glShaderSource(gemometry, 1, &gShaderCode, NULL);
-	glCompileShader(gemometry);
-	// 打印编译错误（如果有的话）
-	glGetShaderiv(gemometry, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(gemometry, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::GEMOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
-	};
-	// 着色器程序
-	int ID = shader.ID;
-	glAttachShader(ID, gemometry);
-	glLinkProgram(ID);
-	// 打印连接错误
-	glGetProgramiv(ID, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(ID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-	glDeleteShader(gemometry);
+		glm::mat4 model;
+		// 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
+		float angle = (float)i / (float)amount * 360.0f;
+		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float x = sin(angle) * radius + displacement;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float y = displacement * 0.4f; // 让行星带的高度比x和z的宽度要小
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
 
-	float points[] = {
-	-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // 左上
-	 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // 右上
-	 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
-	-0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // 左下
-	};
-	// VAO
-	unsigned int VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+		// 2. 缩放：在 0.05 和 0.25f 之间缩放
+		float scale = (rand() % 20) / 100.0f + 0.05;
+		model = glm::scale(model, glm::vec3(scale));
 
-	Model mModel("resource/backpack/backpack.obj");
+		// 3. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
+		float rotAngle = (rand() % 360);
+		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+		// 4. 添加到矩阵的数组中
+		modelMatrices[i] = model;
+	}
+
+	Model rock("resource/rock.obj");
+	Model planet("resource/planet.obj");
+
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+	for (unsigned int i = 0; i < rock.meshes.size(); i++)
+	{
+		unsigned int VAO = rock.meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// 顶点属性
+		GLsizei vec4Size = sizeof(glm::vec4);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
@@ -135,23 +126,28 @@ int main() {
 		glClearColor(0.5,0.5,0.5,1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//清颜色缓存&深度缓存
 
-		glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 1.f, 100.f);
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 model;
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+		glm::mat4 view = camera.GetViewMatrix();;
 		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
+
+		// 绘制行星
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
 		shader.setMat4("model", model);
-		shader.setFloat("time", (float)glfwGetTime());
+		planet.Draw(shader);
 
-		mModel.Draw(shader);
-
-		normalShader.use();
-		normalShader.setMat4("projection", projection);
-		normalShader.setMat4("view", view);
-		normalShader.setMat4("model", model);
-
-		mModel.Draw(normalShader);
+		// 绘制小行星
+		ishader.use();
+		ishader.setMat4("view", view);
+		ishader.setMat4("projection", projection);
+		for (unsigned int i = 0; i < rock.meshes.size(); i++)
+		{
+			glBindVertexArray(rock.meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
