@@ -65,6 +65,18 @@ int main() {
 		-10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
 		 10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,  10.0f, 10.0f
 	};
+	glm::vec3 lightPositions[] = {
+	  glm::vec3(-3.0f, 0.0f, 0.0f),
+	  glm::vec3(-1.0f, 0.0f, 0.0f),
+	  glm::vec3(1.0f, 0.0f, 0.0f),
+	  glm::vec3(3.0f, 0.0f, 0.0f)
+	};
+	glm::vec3 lightColors[] = {
+		glm::vec3(0.25),
+		glm::vec3(0.50),
+		glm::vec3(0.75),
+		glm::vec3(1.00)
+	};
 	// plane VAO
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
@@ -83,8 +95,7 @@ int main() {
 	unsigned int floorTexture = loadTexture("resource/wall.jpg");
 
 	shader.use();
-	shader.setInt("texture1", 0);
-	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
+	shader.setInt("floorTexture", 0);
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
@@ -101,12 +112,13 @@ int main() {
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		// set light uniforms
+		glUniform3fv(glGetUniformLocation(shader.ID, "lightPositions"), 4, &lightPositions[0][0]);
+		glUniform3fv(glGetUniformLocation(shader.ID, "lightColors"), 4, &lightColors[0][0]);
 		shader.setVec3("viewPos", camera.Position);
-		shader.setVec3("lightPos", lightPos);
 		// floor
 		glBindVertexArray(planeVAO);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glBindTexture(GL_TEXTURE_2D,floorTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
