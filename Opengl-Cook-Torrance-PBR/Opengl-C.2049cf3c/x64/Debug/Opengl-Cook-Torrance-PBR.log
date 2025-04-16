@@ -2,13 +2,13 @@
 C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\shader.h(4,10): warning C4067: 预处理器指令后有意外标记 - 应输入换行符
   (编译源文件“main.cpp”)
   
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(123,24): warning C4305: “参数”: 从“double”到“GLfloat”截断
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(123,20): warning C4305: “参数”: 从“double”到“GLfloat”截断
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(123,16): warning C4305: “参数”: 从“double”到“GLfloat”截断
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(196,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(197,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(200,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(201,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(202,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(203,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(72,24): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(72,20): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(72,16): warning C4305: “参数”: 从“double”到“GLfloat”截断
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(121,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(122,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(125,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(126,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(127,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\main.cpp(128,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
   Opengl-Cook-Torrance-PBR.vcxproj -> C:\Users\any\Desktop\work\graphics\Opengl-Cook-Torrance-PBR\Opengl-Cook-Torrance-PBR\x64\Debug\Opengl-Cook-Torrance-PBR.exe
