@@ -24,10 +24,12 @@ void main()
     gl_Position = projection * view * model * vec4(position, 1.0f);
     vs_out.TexCoords = texCoords;
     vs_out.FragPos = vec3(model * vec4(position,1.0));
+
     vec3 T = normalize(vec3(model * vec4(tangent,   0.0)));
     vec3 B = normalize(vec3(model * vec4(bitangent, 0.0)));
     vec3 N = normalize(vec3(model * vec4(normal,    0.0)));
     mat3 TBN = transpose(mat3(T, B, N));
+
     vs_out.TangentLightPos = TBN * lightPos;
     vs_out.TangentViewPos  = TBN * viewPos;
     vs_out.TangentFragPos  = TBN * vs_out.FragPos;

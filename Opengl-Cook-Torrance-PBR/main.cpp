@@ -55,12 +55,14 @@ int main() {
 
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
-	unsigned int woodTexture = loadTexture("resource/brickwall.jpg");
-	unsigned int normalTexture = loadTexture("resource/brickwall_normal.jpg");
+	unsigned int woodTexture = loadTexture("resource/bricks2.jpg");
+	unsigned int normalTexture = loadTexture("resource/bricks2_normal.jpg");
+	unsigned int depthTexture = loadTexture("resource/bricks2_disp.jpg");
 
 	shader.use();
 	shader.setInt("diffuseTexture", 0);
 	shader.setInt("normalMap", 1);
+	shader.setInt("depthMap", 2);
 
 	glm::vec3 lightPos(0.5, 1.0, 0.3);
 
@@ -74,7 +76,6 @@ int main() {
 
 		shader.use();
 		glm::mat4 model;
-		model = glm::rotate(model, (float)10, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		shader.setMat4("projection", projection);
@@ -83,10 +84,13 @@ int main() {
 		// set light uniforms
 		shader.setVec3("viewPos", camera.Position);
 		shader.setVec3("lightPos", lightPos);
+		shader.setFloat("height_scale", 0.1);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, woodTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, normalTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
 		RenderQuad();
 
 		glfwSwapBuffers(window);
