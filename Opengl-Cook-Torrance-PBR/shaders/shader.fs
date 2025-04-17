@@ -3,45 +3,39 @@ out vec4 FragColor;
 
 in VS_OUT {
     vec3 FragPos;
+    vec3 Normal;
     vec2 TexCoords;
-    vec3 TangentLightPos;
-    vec3 TangentViewPos;
-    vec3 TangentFragPos;
 } fs_in;
 
+struct Light {
+    vec3 Position;
+    vec3 Color;
+};
+
+uniform Light lights[4];
 uniform sampler2D diffuseTexture;
-uniform sampler2D normalMap;  
-uniform sampler2D depthMap;
-
-uniform float height_scale;
-
-vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir){
-	float height = texture(depthMap,texCoords).r;
-	return texCoords - viewDir.xy / viewDir.z * (height * height_scale);  
-}
+uniform vec3 viewPos;
 
 void main()
 {           
-    vec3 viewDir   = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
-    vec2 texCoords = ParallaxMapping(fs_in.TexCoords,  viewDir);
-    if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
-    discard;
-
-    vec3 color = texture(diffuseTexture, texCoords).rgb;
-    vec3 normal = texture(normalMap, texCoords).rgb;
-    normal = normalize(normal * 2.0 - 1.0); 
-    // Ambient
-    vec3 ambient = 0.1 * color;
-    // Diffuse
-    vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * color;
-    // Specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    vec3 specular = spec * vec3(0.2);    
-    vec3 lighting = ambient + diffuse + specular;    
-
-    FragColor = vec4(lighting, 1.0f);
+    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+    vec3 normal = normalize(fs_in.Normal);
+    // ambient
+    vec3 ambient = 0.0 * color;
+    // lighting
+    vec3 lighting = vec3(0.0);
+    for(int i = 0; i < 4; i++)
+    {
+        // diffuse
+        vec3 lightDir = normalize(lights[i].Position - fs_in.FragPos);
+        float diff = max(dot(lightDir, normal), 0.0);
+        vec3 diffuse = lights[i].Color * diff * color;      
+        vec3 result = diffuse;        
+        // attenuation (use quadratic as we have gamma correction)
+        float distance = length(fs_in.FragPos - lights[i].Position);
+        result *= 1.0 / (distance * distance);
+        lighting += result;
+                
+    }
+    FragColor = vec4(ambient + lighting, 1.0);
 }
