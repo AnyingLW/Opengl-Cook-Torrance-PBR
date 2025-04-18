@@ -1,47 +1,23 @@
 #version 330 core
-layout (location = 0) out vec4 FragColor;
-layout (location = 1) out vec4 BrightColor;
+layout (location = 0) out vec3 gPosition;
+layout (location = 1) out vec3 gNormal;
+layout (location = 2) out vec4 gAlbedoSpec;
 
-in VS_OUT {
-    vec3 FragPos;
-    vec3 Normal;
-    vec2 TexCoords;
-} fs_in;
+in vec2 TexCoords;
+in vec3 FragPos;
+in vec3 Normal;
 
-struct Light {
-    vec3 Position;
-    vec3 Color;
-};
-
-uniform Light lights[4];
-uniform sampler2D diffuseTexture;
-uniform vec3 viewPos;
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
 
 void main()
-{           
-    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
-    vec3 normal = normalize(fs_in.Normal);
-    // ambient
-    vec3 ambient = 0.0 * color;
-    // lighting
-    vec3 lighting = vec3(0.0);
-    for(int i = 0; i < 4; i++)
-    {
-        // diffuse
-        vec3 lightDir = normalize(lights[i].Position - fs_in.FragPos);
-        float diff = max(dot(lightDir, normal), 0.0);
-        vec3 diffuse = lights[i].Color * diff * color;      
-        vec3 result = diffuse;        
-        // attenuation (use quadratic as we have gamma correction)
-        float distance = length(fs_in.FragPos - lights[i].Position);
-        result *= 1.0 / (distance * distance);
-        lighting += result;
-                
-    }
-    vec3 result = ambient + lighting;
-    FragColor = vec4(result, 1.0f);
-    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.0)
-        BrightColor = vec4(result, 1.0);
-    else BrightColor = vec4(0.0);
-}
+{    
+    // 存储第一个G缓冲纹理中的片段位置向量
+    gPosition = FragPos;
+    // 同样存储对每个逐片段法线到G缓冲中
+    gNormal = normalize(Normal);
+    // 和漫反射对每个逐片段颜色
+    gAlbedoSpec.rgb = texture(texture_diffuse1, TexCoords).rgb;
+    // 存储镜面强度到gAlbedoSpec的alpha分量
+    gAlbedoSpec.a = texture(texture_specular1, TexCoords).r;
+}  

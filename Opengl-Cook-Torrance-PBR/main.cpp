@@ -10,6 +10,7 @@
 #include"shader.h"
 #include"stb_image.h"
 #include"camera.h"
+#include"model.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ void renderCube();
 void renderQuad();
 
 const unsigned int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-Camera camera(glm::vec3(0, 0, 3));
+Camera camera(glm::vec3(0, 0, 5));
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 float deltaTime = 0, lastFrame = 0, lastX = SCR_WIDTH / 2.0, lastY = SCR_HEIGHT / 2.0;
 bool firstMouse = true;
@@ -54,87 +55,87 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	///////////////////////////////////////////////////////////////////////////////
 
-	// positions
-	std::vector<glm::vec3> lightPositions;
-	lightPositions.push_back(glm::vec3(0.0f, 0.5f, 1.5f));
-	lightPositions.push_back(glm::vec3(-4.0f, 0.5f, -3.0f));
-	lightPositions.push_back(glm::vec3(3.0f, 0.5f, 1.0f));
-	lightPositions.push_back(glm::vec3(-.8f, 2.4f, -1.0f));
-	// colors
-	std::vector<glm::vec3> lightColors;
-	lightColors.push_back(glm::vec3(5.0f, 5.0f, 5.0f));
-	lightColors.push_back(glm::vec3(10.0f, 0.0f, 0.0f));
-	lightColors.push_back(glm::vec3(0.0f, 0.0f, 15.0f));
-	lightColors.push_back(glm::vec3(0.0f, 5.0f, 0.0f));
-
 	Shader shader("shaders/shader.vs", "shaders/shader.fs");
-	Shader shaderLight("shaders/shader.vs", "shaders/light_box.fs");
-	Shader shaderBlur("shaders/lightShader.vs", "shaders/lightShader.fs");
-	Shader shaderBloomFinal("shaders/bloom_final.vs", "shaders/bloom_final.fs");
+	Shader shaderLight("shaders/lightShader.vs", "shaders/lightShader.fs");
+	Shader shaderLightBox("shaders/bloom_final.vs", "shaders/bloom_final.fs");
 
-	unsigned int woodTexture = loadTexture("resource/brickwall.jpg");
-	unsigned int containerTexture = loadTexture("resource/container2.png");
-	//创建hdr framebuffer，为之配置两张颜色贴图，一张存放正常渲染颜色，一张存放高亮部分
-	GLuint hdrFBO;
-	glGenFramebuffers(1, &hdrFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-	GLuint colorBuffers[2];
-	glGenTextures(2, colorBuffers);
-	for (GLuint i = 0; i < 2; i++)
+	Model backpack("resource/backpack/backpack.obj");
+	cout << "load over" << endl;
+
+	std::vector<glm::vec3> objectPositions;
+	objectPositions.push_back(glm::vec3(-3.0, -3.0, -3.0));
+	objectPositions.push_back(glm::vec3(0.0, -3.0, -3.0));
+	objectPositions.push_back(glm::vec3(3.0, -3.0, -3.0));
+	objectPositions.push_back(glm::vec3(-3.0, -3.0, 0.0));
+	objectPositions.push_back(glm::vec3(0.0, -3.0, 0.0));
+	objectPositions.push_back(glm::vec3(3.0, -3.0, 0.0));
+	objectPositions.push_back(glm::vec3(-3.0, -3.0, 3.0));
+	objectPositions.push_back(glm::vec3(0.0, -3.0, 3.0));
+	objectPositions.push_back(glm::vec3(3.0, -3.0, 3.0));
+	// - Colors
+	const GLuint NR_LIGHTS = 32;
+	std::vector<glm::vec3> lightPositions;
+	std::vector<glm::vec3> lightColors;
+	srand(13);
+	for (GLuint i = 0; i < NR_LIGHTS; i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
-		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL
-		);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0
-		);
+		// Calculate slightly random offsets
+		GLfloat xPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+		GLfloat yPos = ((rand() % 100) / 100.0) * 6.0 - 4.0;
+		GLfloat zPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
+		lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+		// Also calculate random color
+		GLfloat rColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
+		GLfloat gColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
+		GLfloat bColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
+		lightColors.push_back(glm::vec3(rColor, gColor, bColor));
 	}
-    //深度和模板缓冲
-	unsigned int rboDepth;
+
+	GLuint gBuffer;
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+	GLuint gPosition, gNormal, gAlbedoSpec;
+	// - Position color buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+	// - Normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+	// - Color + Specular color buffer
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+	// - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+	// - Create and attach depth buffer (renderbuffer)
+	GLuint rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
-	// finally check if framebuffer is complete
+	// - Finally check if framebuffer is complete
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//两个用于高斯模糊的buffer，一个存横向模糊，一个存纵向
-	unsigned int pingpongFBO[2];
-	unsigned int pingpongColorbuffers[2];
-	glGenFramebuffers(2, pingpongFBO);
-	glGenTextures(2, pingpongColorbuffers);
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
-		glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
-		// also check if framebuffers are complete (no need for depth buffer)
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer not complete!" << std::endl;
-	}
+	shaderLight.use();
+	shaderLight.setInt("gPosition", 0);
+	shaderLight.setInt("gNormal", 1);
+	shaderLight.setInt("gAlbedoSpec", 2);
 
-	shader.use();
-	shader.setInt("diffuseTexture", 0);
-	shaderBlur.use();
-	shaderBlur.setInt("image", 0);
-	shaderBloomFinal.use();
-	shaderBloomFinal.setInt("scene", 0);
-	shaderBloomFinal.setInt("bloomBlur", 1);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = (float)glfwGetTime();
@@ -144,109 +145,69 @@ int main() {
 		glClearColor(0.1,0.1,0.1,1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//清颜色缓存&深度缓存
 
-		// 1.常规渲染场景
-		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+		// 1.常规渲染场景,将颜色、高光、深度、法线存入g-buffer中
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)SCR_WIDTH / (GLfloat)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 model;
 		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, woodTexture);
-		// set lighting uniforms
-		for (unsigned int i = 0; i < lightPositions.size(); i++)
+		for (GLuint i = 0; i < objectPositions.size(); i++)
 		{
-			shader.setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
-			shader.setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
-		}
-		shader.setVec3("viewPos", camera.Position);
-		// create one large cube that acts as the floor
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0));
-		model = glm::scale(model, glm::vec3(12.5f, 0.5f, 12.5f));
-		shader.setMat4("model", model);
-		renderCube();
-		// then create multiple cubes as the scenery
-		glBindTexture(GL_TEXTURE_2D, containerTexture);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-		model = glm::scale(model, glm::vec3(0.5f));
-		shader.setMat4("model", model);
-		renderCube();
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-		model = glm::scale(model, glm::vec3(0.5f));
-		shader.setMat4("model", model);
-		renderCube();
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-1.0f, -1.0f, 2.0));
-		model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-		shader.setMat4("model", model);
-		renderCube();
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 2.7f, 4.0));
-		model = glm::rotate(model, glm::radians(23.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-		model = glm::scale(model, glm::vec3(1.25));
-		shader.setMat4("model", model);
-		renderCube();
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-2.0f, 1.0f, -3.0));
-		model = glm::rotate(model, glm::radians(124.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-		shader.setMat4("model", model);
-		renderCube();
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0));
-		model = glm::scale(model, glm::vec3(0.5f));
-		shader.setMat4("model", model);
-		renderCube();
-
-		// finally show all the light sources as bright cubes
-		shaderLight.use();
-		shaderLight.setMat4("projection", projection);
-		shaderLight.setMat4("view", view);
-
-		for (unsigned int i = 0; i < lightPositions.size(); i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(lightPositions[i]));
+			model = glm::mat4();
+			model = glm::translate(model, objectPositions[i]);
 			model = glm::scale(model, glm::vec3(0.25f));
-			shaderLight.setMat4("model", model);
-			shaderLight.setVec3("lightColor", lightColors[i]);
+			shader.setMat4("model", model);
+			backpack.Draw(shader);
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//2.延迟光照处理
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shaderLight.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+		// Also send light relevant uniforms
+		for (GLuint i = 0; i < lightPositions.size(); i++)
+		{
+			glUniform3fv(glGetUniformLocation(shaderLight.ID, ("lights[" + std::to_string(i) + "].Position").c_str()), 1, &lightPositions[i][0]);
+			glUniform3fv(glGetUniformLocation(shaderLight.ID, ("lights[" + std::to_string(i) + "].Color").c_str()), 1, &lightColors[i][0]);
+			// Update attenuation parameters and calculate radius
+			const GLfloat constant = 1.0; // Note that we don't send this to the shader, we assume it is always 1.0 (in our case)
+			const GLfloat linear = 0.7;
+			const GLfloat quadratic = 1.8;
+			glUniform1f(glGetUniformLocation(shaderLight.ID, ("lights[" + std::to_string(i) + "].Linear").c_str()), linear);
+			glUniform1f(glGetUniformLocation(shaderLight.ID, ("lights[" + std::to_string(i) + "].Quadratic").c_str()), quadratic);
+		}
+		glUniform3fv(glGetUniformLocation(shaderLight.ID, "viewPos"), 1, &camera.Position[0]);
+		// Finally render quad
+		renderQuad();
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // 写入到默认帧缓冲
+		glBlitFramebuffer(
+			0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST
+		);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// 3.现在像正常情况一样正向渲染所有光立方体
+		shaderLightBox.use();
+		shaderLightBox.setMat4("projection", projection);
+		shaderLightBox.setMat4("view", view);
+		for (GLuint i = 0; i < lightPositions.size(); i++)
+		{
+			model = glm::mat4();
+			model = glm::translate(model, lightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.25f));
+			shaderLightBox.setMat4("model", model);
+			shaderLightBox.setVec3("lightColor", lightColors[i]);
 			renderCube();
 		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//2.进行高斯模糊
-		bool horizontal = true, first_iteration = true;
-		unsigned int amount = 10;
-		shaderBlur.use();
-		for (unsigned int i = 0; i < amount; i++)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-			shaderBlur.setInt("horizontal", horizontal);
-			glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongColorbuffers[!horizontal]);  
-			renderQuad();
-			horizontal = !horizontal;
-			if (first_iteration)
-				first_iteration = false;
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//3.结合原渲染结果和高斯模糊后的结果得到泛光
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shaderBloomFinal.use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-		shaderBloomFinal.setFloat("exposure", 1);
-		renderQuad();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
