@@ -1,11 +1,17 @@
 #version 330 core
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texCoords;
+layout (location = 0) in vec3 aPos;
 
-out vec2 TexCoords;
+uniform mat4 projection;
+uniform mat4 view;
+
+out vec3 WorldPos;
 
 void main()
 {
-    gl_Position = vec4(position, 1.0f);
-    TexCoords = texCoords;
+    	WorldPos = aPos;
+
+	mat4 rotView = mat4(mat3(view));
+	vec4 clipPos = projection * rotView * vec4(WorldPos, 1.0);
+
+	gl_Position = clipPos.xyww;
 }
